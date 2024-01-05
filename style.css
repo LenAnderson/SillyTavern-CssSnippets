@@ -1,0 +1,65 @@
+html > body #CustomCSS-block > h4 {
+  display: flex;
+  gap: 1em;
+  align-items: baseline;
+}
+html > body.csss--body {
+  overflow: auto;
+}
+html > body.csss--body #csss--root {
+  padding: 0.5em;
+  width: 100%;
+  /* box-sizing: border-box; */
+}
+html > body.csss--body #csss--list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+html > body.csss--body #csss--list > .csss--snippet {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5em;
+}
+html > body.csss--body #csss--list > .csss--snippet:has(.csss--isDisabled:checked) {
+  opacity: 0.5;
+}
+html > body.csss--body #csss--list > .csss--snippet > .csss--activeWrap > label {
+  align-items: baseline;
+}
+html > body.csss--body #csss--list > .csss--snippet > .csss--contentWrap {
+  flex: 1 1 auto;
+}
+html > body.csss--body #csss--list > .csss--snippet > .csss--contentWrap > .csss--content {
+  font-family: 'Courier New', Courier, monospace;
+}
+html > body.csss--body .csss--listActions {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+html > body.csss--body > .csss--blocker {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  backdrop-filter: blur(4px);
+}
+html > body.csss--body > .csss--blocker > .csss--body {
+  position: absolute;
+  inset: 1em;
+  width: unset;
+  min-width: unset;
+  max-width: unset;
+  height: unset;
+  min-height: unset;
+  max-height: unset;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+html > body.csss--body > .csss--blocker > .csss--body > .csss--input {
+  flex: 1 1 auto;
+}

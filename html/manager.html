@@ -1,0 +1,37 @@
+<div id="csss--root">
+	<link rel="stylesheet" href="/scripts/extensions/third-party/SillyTavern-CssSnippets/style.css">
+	<h4>CSS Snippets</h4>
+	<ul id="csss--list">
+		<template id="csss--snippet">
+			<li class="csss--snippet">
+				<div class="csss--nameWrap">
+					<input type="text" class="csss--name text_pole" placeholder="snippet name">
+				</div>
+				<div class="csss--activeWrap">
+					<label class="flex-container">
+						<input type="checkbox" class="csss--isDisabled">
+						<span class="csss--text">Disable</span>
+					</label>
+					<label class="flex-container">
+						<input type="checkbox" class="csss--isGlobal">
+						<span class="csss--text">Global</span>
+					</label>
+					<label class="flex-container">
+						<input type="checkbox" class="csss--isTheme">
+						<span class="csss--text">Theme</span>
+					</label>
+				</div>
+				<div class="csss--contentWrap">
+					<textarea rows="6" class="csss--content" placeholder="CSS"></textarea>
+				</div>
+				<div class="csss--actionsWrap">
+					<div class="csss--max menu_button menu_button_icon fa-solid fa-maximize" title="Expand editor"></div>
+					<div class="csss--remove menu_button menu_button_icon fa-solid fa-trash redWarningBG" title="Delete CSS snippet"></div>
+				</div>
+			</li>
+		</template>
+	</ul>
+	<div class="csss--listActions">
+		<div class="csss--add menu_button menu_button_icon fa-solid fa-plus" id="csss--add" title="Add CSS snippet"></div>
+	</div>
+</div>
