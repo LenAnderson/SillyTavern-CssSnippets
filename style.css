@@ -4,12 +4,13 @@ html > body #CustomCSS-block > h4 {
   align-items: baseline;
 }
 html > body.csss--body {
-  overflow: auto;
+  height: 100vh;
 }
 html > body.csss--body #csss--root {
   padding: 0.5em;
   width: 100%;
-  /* box-sizing: border-box; */
+  height: 100vh;
+  overflow: auto;
 }
 html > body.csss--body #csss--list {
   list-style: none;
