@@ -122,4 +122,5 @@ html > body.csss--body > .csss--blocker > .csss--body {
 }
 html > body.csss--body > .csss--blocker > .csss--body > .csss--input {
   flex: 1 1 auto;
+  font-family: 'Courier New', Courier, monospace;
 }
