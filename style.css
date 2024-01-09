@@ -7,14 +7,66 @@ html > body.csss--body {
   height: 100vh;
 }
 html > body.csss--body #csss--root {
-  padding: 0.5em;
   width: 100%;
   height: 100vh;
   overflow: auto;
 }
+html > body.csss--body .csss--isExporting .csss--snippet * {
+  pointer-events: none;
+}
+html > body.csss--body .csss--isExporting .csss--snippet.csss--selected {
+  box-shadow: 0 0 20px var(--SmartThemeQuoteColor);
+}
+html > body.csss--body #csss--head {
+  display: flex;
+  flex-direction: row;
+  gap: 2em;
+  align-items: baseline;
+  position: sticky;
+  top: 0;
+  background-color: var(--greyCAIbg);
+  box-shadow: 0 0 3px black;
+  padding: 0.5em;
+  z-index: 1;
+}
+html > body.csss--body #csss--head > h4 {
+  flex: 0 0 auto;
+}
+html > body.csss--body #csss--head > .csss--actions {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: row;
+  gap: 0.25em;
+  align-items: baseline;
+}
+html > body.csss--body #csss--head > .csss--actions > #csss--export {
+  transition: 200ms;
+}
+html > body.csss--body #csss--head > .csss--actions > #csss--export.csss--active {
+  background-color: var(--SmartThemeQuoteColor);
+}
+html > body.csss--body #csss--head > .csss--actions > #csss--import-file {
+  display: none;
+}
+html > body.csss--body #csss--head > .csss--actions > #csss--export-message {
+  flex: 1 1 auto;
+}
+html > body.csss--body #csss--head > .csss--actions > #csss--export-message,
+html > body.csss--body #csss--head > .csss--actions > #csss--export-copy,
+html > body.csss--body #csss--head > .csss--actions > #csss--export-download {
+  opacity: 0;
+  pointer-events: none;
+  transition: 200ms;
+}
+html > body.csss--body #csss--head > .csss--actions > #csss--export-message.csss--active,
+html > body.csss--body #csss--head > .csss--actions > #csss--export-copy.csss--active,
+html > body.csss--body #csss--head > .csss--actions > #csss--export-download.csss--active {
+  opacity: 1;
+  pointer-events: all;
+}
 html > body.csss--body #csss--list {
   list-style: none;
-  padding: 0;
+  padding: 0.5em;
   margin: 0;
   display: flex;
   flex-direction: column;
@@ -28,8 +80,15 @@ html > body.csss--body #csss--list > .csss--snippet {
 html > body.csss--body #csss--list > .csss--snippet:has(.csss--isDisabled:checked) {
   opacity: 0.5;
 }
-html > body.csss--body #csss--list > .csss--snippet > .csss--activeWrap > label {
-  align-items: baseline;
+html > body.csss--body #csss--list > .csss--snippet > .csss--nameWrap {
+  flex: 0 0 auto;
+}
+html > body.csss--body #csss--list > .csss--snippet > .csss--nameWrap > .csss--activeWrap {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5em;
+  justify-content: space-between;
+  padding: 0.5em;
 }
 html > body.csss--body #csss--list > .csss--snippet > .csss--contentWrap {
   flex: 1 1 auto;

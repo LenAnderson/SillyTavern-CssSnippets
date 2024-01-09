@@ -9,15 +9,68 @@ html > body {
 html > body.csss--body {
 	height: 100vh;
 	#csss--root {
-		padding: 0.5em;
 		width: 100%;
 		height: 100vh;
 		overflow: auto;
 	}
 
+	.csss--isExporting {
+		.csss--snippet {
+			* { pointer-events: none; }
+			&.csss--selected {
+				box-shadow: 0 0 20px var(--SmartThemeQuoteColor);
+			}
+		}
+	}
+
+	#csss--head {
+		display: flex;
+		flex-direction: row;
+		gap: 2em;
+		align-items: baseline;
+		position: sticky;
+		top: 0;
+		background-color: var(--greyCAIbg);
+		box-shadow: 0 0 3px black;
+		padding: 0.5em;
+		z-index: 1;
+		> h4 { flex: 0 0 auto; }
+		> .csss--actions {
+			flex: 1 1 auto;
+			display: flex;
+			flex-direction: row;
+			gap: 0.25em;
+			align-items: baseline;
+			> #csss--export {
+				transition: 200ms;
+				&.csss--active {
+					background-color: var(--SmartThemeQuoteColor);
+				}
+			}
+			> #csss--import-file {
+				display: none;
+			}
+			> #csss--export-message {
+				flex: 1 1 auto;
+			}
+			> #csss--export-message,
+			> #csss--export-copy,
+			> #csss--export-download
+			{
+				opacity: 0;
+				pointer-events: none;
+				transition: 200ms;
+				&.csss--active {
+					opacity: 1;
+					pointer-events: all;
+				}
+			}
+		}
+	}
+
 	#csss--list {
 		list-style: none;
-		padding: 0;
+		padding: 0.5em;
 		margin: 0;
 		display: flex;
 		flex-direction: column;
@@ -31,8 +84,15 @@ html > body.csss--body {
 				opacity: 0.5;
 			}
 
-			> .csss--activeWrap > label {
-				align-items: baseline;
+			> .csss--nameWrap {
+				flex: 0 0 auto;
+				> .csss--activeWrap {
+					display: flex;
+					flex-direction: row;
+					gap: 0.5em;
+					justify-content: space-between;
+					padding: 0.5em;
+				}
 			}
 
 			> .csss--contentWrap {

@@ -1,25 +1,35 @@
 <div id="csss--root">
 	<link rel="stylesheet" href="/scripts/extensions/third-party/SillyTavern-CssSnippets/style.css">
-	<h4>CSS Snippets</h4>
+	<div id="csss--head">
+		<h4>CSS Snippets</h4>
+		<div class="csss--actions">
+			<input type="file" id="csss--import-file">
+			<div id="csss--import" class="csss--action menu_button menu_button_icon fa fa-file-import" title="Import snippets"></div>
+			<div id="csss--export" class="csss--action menu_button menu_button_icon fa fa-file-export" title="Export snippets"></div>
+			<div id="csss--export-message">click on snippets to (de-)select | selected: <span id="csss--count">0</span></div>
+			<div id="csss--export-copy" class="csss--action menu_button menu_button_icon fa fa-copy" title="Copy to clipboard"></div>
+			<div id="csss--export-download" class="csss--action menu_button menu_button_icon fa fa-download" title="Download"></div>
+		</div>
+	</div>
 	<ul id="csss--list">
 		<template id="csss--snippet">
 			<li class="csss--snippet">
 				<div class="csss--nameWrap">
 					<input type="text" class="csss--name text_pole" placeholder="snippet name">
-				</div>
-				<div class="csss--activeWrap">
-					<label class="flex-container">
-						<input type="checkbox" class="csss--isDisabled">
-						<span class="csss--text">Disable</span>
-					</label>
-					<label class="flex-container">
-						<input type="checkbox" class="csss--isGlobal">
-						<span class="csss--text">Global</span>
-					</label>
-					<label class="flex-container">
-						<input type="checkbox" class="csss--isTheme">
-						<span class="csss--text">Theme</span>
-					</label>
+					<div class="csss--activeWrap">
+						<label class="flex-container">
+							<input type="checkbox" class="csss--isDisabled">
+							<span class="csss--text">Disable</span>
+						</label>
+						<label class="flex-container">
+							<input type="checkbox" class="csss--isGlobal">
+							<span class="csss--text">Global</span>
+						</label>
+						<label class="flex-container">
+							<input type="checkbox" class="csss--isTheme">
+							<span class="csss--text">Theme</span>
+						</label>
+					</div>
 				</div>
 				<div class="csss--contentWrap">
 					<textarea rows="6" class="csss--content" placeholder="CSS"></textarea>

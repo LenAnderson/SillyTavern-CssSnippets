@@ -62,6 +62,12 @@ let snippetTemplate;
 let style;
 /**@type {HTMLStyleElement} */
 let managerStyle;
+/**@type {Boolean} */
+let isExporting = false;
+/**@type {Object[]} */
+let selectedList = [];
+/**@type {HTMLElement} */
+let selectedCount;
 
 const updateCss = ()=>{
     if (!style) {
@@ -131,9 +137,23 @@ const makeSnippetDom = (snippet)=>{
     // @ts-ignore
     const li = snippetTemplate.cloneNode(true); {
         li.setAttribute('data-csss', snippet.name);
+        li.addEventListener('click', ()=>{
+            if (!isExporting) return;
+            li.classList.toggle('csss--selected');
+            if (li.classList.contains('csss--selected')) {
+                selectedList.push(snippet);
+            } else {
+                const idx = selectedList.indexOf(snippet);
+                if (idx != -1) {
+                    selectedList.splice(idx, 1);
+                }
+            }
+            selectedCount.textContent = `${selectedList.length}`;
+        });
         /**@type {HTMLInputElement} */
         const name = li.querySelector('.csss--name'); {
             name.value = snippet.name;
+            name.addEventListener('paste', (evt)=>evt.stopPropagation());
             name.addEventListener('input', ()=>{
                 snippet.name = name.value.trim();
                 li.setAttribute('data-csss', snippet.name);
@@ -167,6 +187,7 @@ const makeSnippetDom = (snippet)=>{
         /**@type {HTMLTextAreaElement} */
         const content = li.querySelector('.csss--content'); {
             content.value = snippet.content;
+            content.addEventListener('paste', (evt)=>evt.stopPropagation());
             content.addEventListener('input', ()=>{
                 snippet.content = content.value.trim();
                 save();
@@ -230,6 +251,86 @@ const showCssManager = async()=>{
         const li = makeSnippetDom(snippet);
         list.append(li);
     });
+
+    /**@type {HTMLInputElement} */
+    const imp = dom.querySelector('#csss--import-file');
+    imp.addEventListener('input', async()=>{
+        for (const file of imp.files) {
+            try {
+                importSnippets(await file.text());
+            } catch { /* empty */ }
+        }
+    });
+    const importSnippets = (text)=>{
+        try {
+            const snippets = JSON.parse(text);
+            for (const snippet of snippets) {
+                settings.snippetList.push(snippet);
+                const li = makeSnippetDom(snippet);
+                list.append(li);
+            }
+        } catch { /* empty */ }
+    };
+    dom.querySelector('#csss--import').addEventListener('click', ()=>imp.click());
+    dom.addEventListener('paste', (evt)=>{
+        importSnippets(evt.clipboardData.getData('text'));
+    });
+    let exp = dom.querySelector('#csss--export');
+    let expMsg = dom.querySelector('#csss--export-message');
+    let expCopy = dom.querySelector('#csss--export-copy');
+    let expDownload = dom.querySelector('#csss--export-download');
+    selectedCount = dom.querySelector('#csss--count');
+    const stopExporting = ()=>{
+        isExporting = false;
+        dom.classList.remove('csss--isExporting');
+        Array.from(dom.querySelectorAll('.csss--snippet.csss--selected')).forEach(it=>it.classList.remove('csss--selected'));
+        while (selectedList.length > 0) selectedList.pop();
+        [exp, expMsg, expCopy, expDownload].forEach(it=>it.classList.remove('csss--active'));
+        selectedCount.textContent = `${selectedList.length}`;
+    };
+    exp.addEventListener('click', ()=>{
+        if (isExporting) {
+            return stopExporting();
+        }
+        selectedCount.textContent = `${selectedList.length}`;
+        isExporting = true;
+        dom.classList.add('csss--isExporting');
+        [exp, expMsg, expCopy, expDownload].forEach(it=>it.classList.add('csss--active'));
+    });
+    expCopy.addEventListener('click', ()=>{
+        if (!isExporting) return;
+        if (selectedList.length > 0) {
+            const ta = document.createElement('textarea'); {
+                ta.value = JSON.stringify(selectedList);
+                ta.style.position = 'fixed';
+                ta.style.inset = '0';
+                dom.append(ta);
+                ta.focus();
+                ta.select();
+                try {
+                    manager.document.execCommand('copy');
+                } catch (err) {
+                    console.error('Unable to copy to clipboard', err);
+                }
+                ta.remove();
+            }
+        }
+        stopExporting();
+    });
+    expDownload.addEventListener('click', ()=>{
+        if (!isExporting) return;
+        if (selectedList.length > 0) {
+            const blob = new Blob([JSON.stringify(selectedList)], { type:'text' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); {
+                a.href = url;
+                a.download = `SillyTavern-CSS-Snippets-${new Date().toISOString()}.json`;
+                a.click();
+            }
+        }
+        stopExporting();
+    });
+
     dom.querySelector('.csss--add').addEventListener('click', ()=>{
         const snippet = {
             name: '',
