@@ -262,14 +262,32 @@ const showCssManager = async()=>{
         }
     });
     const importSnippets = (text)=>{
+        const snippets = [];
         try {
-            const snippets = JSON.parse(text);
-            for (const snippet of snippets) {
+            snippets.push(...JSON.parse(text));
+        } catch {
+            // if not JSON, treat as plain CSS
+            snippets.push({
+                name: '',
+                isDisabled: false,
+                isGlobal: true,
+                isTheme: false,
+                content: text,
+            });
+        }
+
+        let jumped = false;
+        for (const snippet of snippets) {
+            try {
                 settings.snippetList.push(snippet);
                 const li = makeSnippetDom(snippet);
                 list.append(li);
-            }
-        } catch { /* empty */ }
+                if (!jumped) {
+                    li.scrollIntoView();
+                    jumped = true;
+                }
+            } catch { /* empty */ }
+        }
     };
     dom.querySelector('#csss--import').addEventListener('click', ()=>imp.click());
     dom.addEventListener('paste', (evt)=>{
@@ -335,13 +353,14 @@ const showCssManager = async()=>{
         const snippet = {
             name: '',
             isDisabled: false,
-            isGlobal: false,
-            isTheme: true,
+            isGlobal: true,
+            isTheme: false,
             content: '',
         };
         settings.snippetList.push(snippet);
         const li = makeSnippetDom(snippet);
         list.append(li);
+        li.scrollIntoView();
     });
 
     manager.document.body.innerHTML = '';
