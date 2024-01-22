@@ -226,14 +226,27 @@ const showCssManager = async()=>{
             'innerHeight=500',
         ].join(','),
     );
+    await new Promise(resolve=>{
+        manager.addEventListener('load', (evt)=>{
+            console.log('[CSSS]', 'LOAD', evt);
+            resolve();
+        });
+    });
+    let isUnloaded = false;
+    manager.addEventListener('unload', (evt)=>{
+        console.log('[CSSS]', 'UNLOAD (no action)', evt);
+        isUnloaded = true;
+    });
     if (!manager) return;
-    manager.addEventListener('unload', ()=>manager = null);
-    manager.document.title = 'SillyTavern CSS Snippets';
-    manager.document.head.parentElement.setAttribute('style', document.head.parentElement.getAttribute('style'));
-    manager.document.body.classList.add('csss--body');
-    manager.document.body.innerHTML = '<h1>Loading...</h1>';
-    Array.from(document.querySelectorAll('link[rel="stylesheet"]:not([href*="/extensions/"]), style')).forEach(it=>manager.document.head.append(it.cloneNode(true)));
-    managerStyle = manager.document.querySelector('#csss--css-snippets');
+    const setup = ()=>{
+        manager.document.title = 'SillyTavern CSS Snippets';
+        manager.document.head.parentElement.setAttribute('style', document.head.parentElement.getAttribute('style'));
+        manager.document.body.classList.add('csss--body');
+        manager.document.body.innerHTML = '<h1>Loading...</h1>';
+        Array.from(document.querySelectorAll('link[rel="stylesheet"]:not([href*="/extensions/"]), style')).forEach(it=>manager.document.head.append(it.cloneNode(true)));
+        managerStyle = manager.document.querySelector('#csss--css-snippets');
+    };
+    setup();
     if (!managerTemplate) {
         const response = await fetch('/scripts/extensions/third-party/SillyTavern-CssSnippets/html/manager.html', { cache: 'no-store' });
         if (response.ok) {
@@ -363,6 +376,19 @@ const showCssManager = async()=>{
         li.scrollIntoView();
     });
 
+    if (isUnloaded) {
+        console.log('[CSSS]', 'running setup again');
+        setup();
+    }
     manager.document.body.innerHTML = '';
     manager.document.body.append(dom);
+    let onUnloadBound;
+    const onUnload = (evt)=>{
+        console.log('[CSSS]', 'UNLOAD', evt, evt.target.defaultView, evt.target.defaultView == manager);
+
+        manager.removeEventListener('unload', onUnloadBound);
+        manager = null;
+    };
+    onUnloadBound = onUnload.bind(this);
+    manager.addEventListener('unload', onUnloadBound);
 };
