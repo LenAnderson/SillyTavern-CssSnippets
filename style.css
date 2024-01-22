@@ -80,6 +80,12 @@ html > body.csss--body #csss--list > .csss--snippet {
 html > body.csss--body #csss--list > .csss--snippet:has(.csss--isDisabled:checked) {
   opacity: 0.5;
 }
+html > body.csss--body #csss--list > .csss--snippet > .csss--dragWrap {
+  flex: 0 0 auto;
+}
+html > body.csss--body #csss--list > .csss--snippet > .csss--dragWrap > .drag-handle {
+  padding: 0.75em;
+}
 html > body.csss--body #csss--list > .csss--snippet > .csss--nameWrap {
   flex: 0 0 auto;
 }

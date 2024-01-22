@@ -1,7 +1,7 @@
 import { eventSource, event_types, saveSettingsDebounced } from '../../../../script.js';
 import { extension_settings } from '../../../extensions.js';
 import { power_user } from '../../../power-user.js';
-import { delay } from '../../../utils.js';
+import { delay, getSortableDelay } from '../../../utils.js';
 
 
 const initSettings = ()=>{
@@ -136,6 +136,7 @@ const makeSnippetDom = (snippet)=>{
     /**@type {HTMLElement} */
     // @ts-ignore
     const li = snippetTemplate.cloneNode(true); {
+        li.snippet = snippet;
         li.setAttribute('data-csss', snippet.name);
         li.addEventListener('click', ()=>{
             if (!isExporting) return;
@@ -264,6 +265,31 @@ const showCssManager = async()=>{
         const li = makeSnippetDom(snippet);
         list.append(li);
     });
+    manager.sortableStop = ()=>{
+        settings.snippetList.sort((a,b)=>Array.from(list.children).findIndex(it=>it.snippet == a) - Array.from(list.children).findIndex(it=>it.snippet == b));
+        saveSettingsDebounced();
+    };
+    manager.sortableDelay = getSortableDelay();
+    const scripts = [
+        '/lib/jquery-3.5.1.min.js',
+        '/lib/jquery-ui.min.js',
+    ];
+    for (const s of scripts) {
+        const response = await fetch(s);
+        if (response.ok) {
+            const script = manager.document.createElement('script');
+            script.innerHTML = await response.text();
+            dom.append(script);
+        }
+    }
+    const sortableScript = manager.document.createElement('script');
+    sortableScript.innerHTML = `
+        $('#csss--list').sortable({
+            delay: window.sortableDelay,
+            stop: window.sortableStop,
+        });
+    `;
+    dom.append(sortableScript);
 
     /**@type {HTMLInputElement} */
     const imp = dom.querySelector('#csss--import-file');
