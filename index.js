@@ -291,6 +291,14 @@ const showCssManager = async()=>{
     `;
     dom.append(sortableScript);
 
+    /**@type {HTMLElement} */
+    const coll = dom.querySelector('#csss--collapse');
+    coll.addEventListener('click', ()=>{
+        const c = dom.classList.toggle('csss--isCollapsed');
+        coll.classList[c ? 'add' : 'remove']('fa-angles-down');
+        coll.classList[c ? 'remove' : 'add']('fa-angles-up');
+        coll.title = c ? 'Uncollapse snippets' : 'Collapse snippets';
+    });
     /**@type {HTMLInputElement} */
     const imp = dom.querySelector('#csss--import-file');
     imp.addEventListener('input', async()=>{

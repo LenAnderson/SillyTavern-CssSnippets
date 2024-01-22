@@ -23,6 +23,24 @@ html > body.csss--body {
 		}
 	}
 
+	.csss--isCollapsed {
+		#csss--list {
+			gap: 0;
+			> .csss--snippet {
+				> .csss--nameWrap {
+					flex: 1 1 auto;
+					> .csss--activeWrap {
+						display: none;
+					}
+				}
+				> .csss--contentWrap,
+				> .csss--actionsWrap {
+					display: none;
+				}
+			}
+		}
+	}
+
 	#csss--head {
 		display: flex;
 		flex-direction: row;

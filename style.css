@@ -17,6 +17,19 @@ html > body.csss--body .csss--isExporting .csss--snippet * {
 html > body.csss--body .csss--isExporting .csss--snippet.csss--selected {
   box-shadow: 0 0 20px var(--SmartThemeQuoteColor);
 }
+html > body.csss--body .csss--isCollapsed #csss--list {
+  gap: 0;
+}
+html > body.csss--body .csss--isCollapsed #csss--list > .csss--snippet > .csss--nameWrap {
+  flex: 1 1 auto;
+}
+html > body.csss--body .csss--isCollapsed #csss--list > .csss--snippet > .csss--nameWrap > .csss--activeWrap {
+  display: none;
+}
+html > body.csss--body .csss--isCollapsed #csss--list > .csss--snippet > .csss--contentWrap,
+html > body.csss--body .csss--isCollapsed #csss--list > .csss--snippet > .csss--actionsWrap {
+  display: none;
+}
 html > body.csss--body #csss--head {
   display: flex;
   flex-direction: row;
