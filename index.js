@@ -1,6 +1,7 @@
 import { eventSource, event_types, saveSettingsDebounced } from '../../../../script.js';
 import { extension_settings } from '../../../extensions.js';
 import { power_user } from '../../../power-user.js';
+import { registerSlashCommand } from '../../../slash-commands.js';
 import { delay, getSortableDelay } from '../../../utils.js';
 
 
@@ -28,6 +29,45 @@ const init = async()=>{
     addEventListener('beforeunload', ()=>manager?.close());
 
     themeLoop();
+
+    registerSlashCommand(
+        'csss-on',
+        (args, value)=>{
+            const snippet = settings.snippetList.find(it=>it.name.toLowerCase() == value.toLowerCase());
+            if (!snippet) {
+                return toastr.warning(`No such snippet: ${value}`);
+            }
+            snippet.isDisabled = false;
+            const sdm = snippetDomMapper.find(it=>it.snippet == snippet);
+            if (sdm) {
+                sdm.li.querySelector('.csss--isDisabled').checked = snippet.isDisabled;
+            }
+            save();
+        },
+        [],
+        '<span class="monospace">(snippet name)</span> – Enable a CSS snippet.',
+        true,
+        true,
+    );
+    registerSlashCommand(
+        'csss-off',
+        (args, value)=>{
+            const snippet = settings.snippetList.find(it=>it.name.toLowerCase() == value.toLowerCase());
+            if (!snippet) {
+                return toastr.warning(`No such snippet: ${value}`);
+            }
+            snippet.isDisabled = true;
+            const sdm = snippetDomMapper.find(it=>it.snippet == snippet);
+            if (sdm) {
+                sdm.li.querySelector('.csss--isDisabled').checked = snippet.isDisabled;
+            }
+            save();
+        },
+        [],
+        '<span class="monospace">(snippet name)</span> – Disable a CSS snippet.',
+        true,
+        true,
+    );
 };
 const themeLoop = async()=>{
     let theme = power_user.theme;
@@ -68,6 +108,8 @@ let isExporting = false;
 let selectedList = [];
 /**@type {HTMLElement} */
 let selectedCount;
+/**@type {Object[]} */
+let snippetDomMapper = [];
 
 const updateCss = ()=>{
     if (!style) {
@@ -137,6 +179,7 @@ const makeSnippetDom = (snippet)=>{
     // @ts-ignore
     const li = snippetTemplate.cloneNode(true); {
         li.snippet = snippet;
+        snippetDomMapper.push({ snippet, li });
         li.setAttribute('data-csss', snippet.name);
         li.addEventListener('click', ()=>{
             if (!isExporting) return;
@@ -206,6 +249,7 @@ const makeSnippetDom = (snippet)=>{
                 if (manager.window.confirm('Are you sure you want to delete this CSS snippet?\n\nThis cannot be undone!')) {
                     settings.snippetList.splice(settings.snippetList.indexOf(snippet), 1);
                     li.remove();
+                    snippetDomMapper.splice(snippetDomMapper.findIndex(it=>it.snippet == snippet), 1);
                     save();
                 }
             });
