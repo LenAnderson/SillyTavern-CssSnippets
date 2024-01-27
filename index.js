@@ -272,8 +272,18 @@ const showCssManager = async()=>{
         ].join(','),
     );
     await new Promise(resolve=>{
+        let isResolved = false;
+        delay(2000).then(()=>{
+            if (isResolved) return;
+            console.log('[CSSS]', 'LOAD TIMEOUT');
+            isResolved = true;
+            manager.window.alert(`Manager window load event timed out after 2 seconds.\n\nLet's try to continue anyways.`);
+            resolve();
+        });
         manager.addEventListener('load', (evt)=>{
+            if (isResolved) return;
             console.log('[CSSS]', 'LOAD', evt);
+            isResolved = true;
             resolve();
         });
     });
