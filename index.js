@@ -9,6 +9,7 @@ const initSettings = ()=>{
     settings = Object.assign({
         snippetList: [],
         themeSnippets: {},
+        filters: {},
     }, extension_settings.cssSnippets ?? {});
     extension_settings.cssSnippets = settings;
 };
@@ -394,6 +395,7 @@ const showCssManager = async()=>{
                 isGlobal: true,
                 isTheme: false,
                 content: text,
+                isCollapsed: false,
             });
         }
 
@@ -468,6 +470,77 @@ const showCssManager = async()=>{
             }
         }
         stopExporting();
+    });
+
+    /**@type {HTMLInputElement} */
+    const search = dom.querySelector('#csss--searchQuery');
+    search.addEventListener('input', ()=>{
+        const query = search.value;
+        const re = new RegExp(query, 'i');
+        for (const snippet of settings.snippetList) {
+            const li = snippetDomMapper.find(it=>it.snippet==snippet).li;
+            if (re.test(snippet.name)) {
+                li.classList.remove('csss--isHidden');
+            } else {
+                li.classList.add('csss--isHidden');
+            }
+        }
+    });
+    const applyFilter = ()=>{
+        for (const snippet of settings.snippetList) {
+            const li = snippetDomMapper.find(it=>it.snippet==snippet).li;
+            if (
+                (settings.filters.disabled && snippet.isDisabled)
+                || (settings.filters.theme && !settings.themeSnippets[power_user.theme].includes(snippet.name) && Object.keys(settings.themeSnippets).map(key=>settings.themeSnippets[key]).filter(it=>it.includes(snippet.name)).length > 0)
+                || (settings.filters.global && snippet.isGlobal)
+                || (settings.filters.thisTheme && settings.themeSnippets[power_user.theme].includes(snippet.name))
+            ) {
+                li.classList.add('csss--isFiltered');
+            } else {
+                li.classList.remove('csss--isFiltered');
+            }
+        }
+    };
+    applyFilter();
+    const filterBtn = dom.querySelector('#csss--filter');
+    let filterMenu;
+    filterBtn.addEventListener('click', ()=>{
+        if (filterMenu) {
+            filterMenu.remove();
+            filterMenu = null;
+            return;
+        }
+        const rect = filterBtn.getBoundingClientRect();
+        filterMenu = document.createElement('div'); {
+            filterMenu.classList.add('csss--filterMenu');
+            filterMenu.classList.add('list-group');
+            filterMenu.style.top = `${rect.top + rect.height}px`;
+            filterMenu.style.right = `${manager.innerWidth - rect.right}px`;
+            [
+                { key:'disabled', label:'Hide disabled snippets' },
+                { key:'theme', label:'Hide snippets for other themes' },
+                { key:'thisTheme', label:'Hide snippets for this theme' },
+                { key:'global', label:'Hide global snippets' },
+            ].forEach(filter=>{
+                const item = document.createElement('label'); {
+                    item.classList.add('csss--item');
+                    item.title = filter.label;
+                    const cb = document.createElement('input'); {
+                        cb.type = 'checkbox';
+                        cb.checked = settings.filters[filter.key];
+                        cb.addEventListener('click', ()=>{
+                            settings.filters[filter.key] = cb.checked;
+                            save();
+                            applyFilter();
+                        });
+                        item.append(cb);
+                    }
+                    item.append(filter.label);
+                    filterMenu.append(item);
+                }
+            });
+            manager.document.body.append(filterMenu);
+        }
     });
 
     dom.querySelector('.csss--add').addEventListener('click', ()=>{

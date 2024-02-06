@@ -11,6 +11,11 @@ html > body.csss--body #csss--root {
   height: 100vh;
   overflow: auto;
 }
+html > body.csss--body .csss--isExporting #csss--head > .csss--actions > #csss--collapse,
+html > body.csss--body .csss--isExporting #csss--head > .csss--actions > #csss--import {
+  opacity: 0.25;
+  pointer-events: none;
+}
 html > body.csss--body .csss--isExporting .csss--snippet * {
   pointer-events: none;
 }
@@ -52,6 +57,11 @@ html > body.csss--body #csss--head > .csss--actions {
   gap: 0.25em;
   align-items: baseline;
 }
+html > body.csss--body #csss--head > .csss--actions > #csss--collapse,
+html > body.csss--body #csss--head > .csss--actions > #csss--import {
+  transition: 200ms;
+  opacity: 1;
+}
 html > body.csss--body #csss--head > .csss--actions > #csss--export {
   transition: 200ms;
 }
@@ -68,6 +78,10 @@ html > body.csss--body #csss--head > .csss--actions > #csss--export-message,
 html > body.csss--body #csss--head > .csss--actions > #csss--export-copy,
 html > body.csss--body #csss--head > .csss--actions > #csss--export-download {
   opacity: 0;
+  width: 0;
+  height: 0;
+  flex: 0 0 auto;
+  overflow: hidden;
   pointer-events: none;
   transition: 200ms;
 }
@@ -75,7 +89,20 @@ html > body.csss--body #csss--head > .csss--actions > #csss--export-message.csss
 html > body.csss--body #csss--head > .csss--actions > #csss--export-copy.csss--active,
 html > body.csss--body #csss--head > .csss--actions > #csss--export-download.csss--active {
   opacity: 1;
+  width: auto;
+  height: auto;
   pointer-events: all;
+}
+html > body.csss--body #csss--head > .csss--actions > #csss--export-message.csss--active#csss--export-message,
+html > body.csss--body #csss--head > .csss--actions > #csss--export-copy.csss--active#csss--export-message,
+html > body.csss--body #csss--head > .csss--actions > #csss--export-download.csss--active#csss--export-message {
+  flex: 1 1 auto;
+}
+html > body.csss--body #csss--head > .csss--actions > #csss--search {
+  flex: 1 1 auto;
+}
+html > body.csss--body #csss--head > .csss--actions > #csss--search > #csss--searchQuery {
+  width: 100%;
 }
 html > body.csss--body #csss--list {
   list-style: none;
@@ -92,6 +119,10 @@ html > body.csss--body #csss--list > .csss--snippet {
 }
 html > body.csss--body #csss--list > .csss--snippet:has(.csss--isDisabled:checked) {
   opacity: 0.5;
+}
+html > body.csss--body #csss--list > .csss--snippet.csss--isHidden,
+html > body.csss--body #csss--list > .csss--snippet.csss--isFiltered {
+  display: none;
 }
 html > body.csss--body #csss--list > .csss--snippet.csss--isCollapsed > .csss--nameWrap {
   flex: 1 1 auto;
@@ -162,4 +193,15 @@ html > body.csss--body > .csss--blocker > .csss--body {
 html > body.csss--body > .csss--blocker > .csss--body > .csss--input {
   flex: 1 1 auto;
   font-family: 'Courier New', Courier, monospace;
+}
+html > body.csss--body > .csss--filterMenu {
+  position: absolute;
+  z-index: 10;
+}
+html > body.csss--body > .csss--filterMenu > .csss--item {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5em;
+  padding: 0.5em;
+  align-items: baseline;
 }
