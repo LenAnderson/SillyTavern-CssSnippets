@@ -93,6 +93,26 @@ html > body.csss--body #csss--list > .csss--snippet {
 html > body.csss--body #csss--list > .csss--snippet:has(.csss--isDisabled:checked) {
   opacity: 0.5;
 }
+html > body.csss--body #csss--list > .csss--snippet.csss--isCollapsed > .csss--nameWrap {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: row;
+}
+html > body.csss--body #csss--list > .csss--snippet.csss--isCollapsed > .csss--nameWrap > .csss--activeWrap > .flex-container {
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+html > body.csss--body #csss--list > .csss--snippet.csss--isCollapsed > .csss--nameWrap > .csss--activeWrap > .flex-container > .csss--text > .csss--full {
+  display: none;
+}
+html > body.csss--body #csss--list > .csss--snippet.csss--isCollapsed > .csss--contentWrap {
+  display: none;
+}
+html > body.csss--body #csss--list > .csss--snippet.csss--isCollapsed > .csss--actionsWrap {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5em;
+}
 html > body.csss--body #csss--list > .csss--snippet > .csss--dragWrap {
   flex: 0 0 auto;
 }
@@ -105,7 +125,7 @@ html > body.csss--body #csss--list > .csss--snippet > .csss--nameWrap {
 html > body.csss--body #csss--list > .csss--snippet > .csss--nameWrap > .csss--activeWrap {
   display: flex;
   flex-direction: row;
-  gap: 0.5em;
+  gap: 1em;
   justify-content: space-between;
   padding: 0.5em;
 }
@@ -121,7 +141,7 @@ html > body.csss--body .csss--listActions {
   justify-content: center;
 }
 html > body.csss--body > .csss--blocker {
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: 10;
   backdrop-filter: blur(4px);

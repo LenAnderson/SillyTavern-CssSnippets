@@ -95,8 +95,6 @@ let settings;
 /**@type {Window} */
 let manager;
 /**@type {HTMLElement} */
-let managerTemplate;
-/**@type {HTMLElement} */
 let snippetTemplate;
 /**@type {HTMLStyleElement} */
 let style;
@@ -110,6 +108,8 @@ let selectedList = [];
 let selectedCount;
 /**@type {Object[]} */
 let snippetDomMapper = [];
+/**@type {HTMLElement} */
+let collapser;
 
 const updateCss = ()=>{
     if (!style) {
@@ -194,6 +194,27 @@ const makeSnippetDom = (snippet)=>{
             }
             selectedCount.textContent = `${selectedList.length}`;
         });
+        const collapseToggle = li.querySelector('.csss--collapse');
+        collapseToggle.addEventListener('click', ()=>{
+            const result = li.classList.toggle('csss--isCollapsed');
+            collapseToggle.classList[result ? 'add' : 'remove']('fa-angle-down');
+            collapseToggle.classList[!result ? 'add' : 'remove']('fa-angle-up');
+            snippet.isCollapsed = result;
+            const uncol = settings.snippetList.filter(it=>!it.isCollapsed);
+            if (uncol.length > 0) {
+                collapser.classList.remove('fa-angles-down');
+                collapser.classList.add('fa-angles-up');
+                collapser.title = 'Collapse snippets';
+            } else {
+                collapser.classList.add('fa-angles-down');
+                collapser.classList.remove('fa-angles-up');
+                collapser.title = 'Uncollapse snippets';
+            }
+            save();
+        });
+        if (snippet.isCollapsed) {
+            collapseToggle.click();
+        }
         /**@type {HTMLInputElement} */
         const name = li.querySelector('.csss--name'); {
             name.value = snippet.name;
@@ -263,7 +284,7 @@ const showCssManager = async()=>{
         return;
     }
     manager = window.open(
-        'about:blank',
+        `${location.protocol}//${location.host}/scripts/extensions/third-party/SillyTavern-CssSnippets/html/manager.html`,
         'snippetManager',
         [
             'popup',
@@ -277,7 +298,7 @@ const showCssManager = async()=>{
             if (isResolved) return;
             console.log('[CSSS]', 'LOAD TIMEOUT');
             isResolved = true;
-            manager.window.alert(`Manager window load event timed out after 2 seconds.\n\nLet's try to continue anyways.`);
+            // manager.window.alert(`Manager window load event timed out after 2 seconds.\n\nLet's try to continue anyways.`);
             resolve();
         });
         manager.addEventListener('load', (evt)=>{
@@ -297,32 +318,23 @@ const showCssManager = async()=>{
         manager.document.title = 'SillyTavern CSS Snippets';
         manager.document.head.parentElement.setAttribute('style', document.head.parentElement.getAttribute('style'));
         manager.document.body.classList.add('csss--body');
-        manager.document.body.innerHTML = '<h1>Loading...</h1>';
+        const base = document.createElement('base');
+        base.href = `${location.protocol}//${location.host}`;
+        manager.document.head.append(base);
+        // manager.document.body.innerHTML = '<h1>Loading...</h1>';
         Array.from(document.querySelectorAll('link[rel="stylesheet"]:not([href*="/extensions/"]), style')).forEach(it=>manager.document.head.append(it.cloneNode(true)));
         managerStyle = manager.document.querySelector('#csss--css-snippets');
     };
     setup();
-    if (!managerTemplate) {
-        const response = await fetch('/scripts/extensions/third-party/SillyTavern-CssSnippets/html/manager.html', { cache: 'no-store' });
-        if (response.ok) {
-            // @ts-ignore
-            managerTemplate = document.createRange().createContextualFragment(await response.text()).querySelector('#csss--root');
-            // @ts-ignore
-            snippetTemplate = managerTemplate.querySelector('#csss--snippet').content.querySelector('.csss--snippet');
-        }
-    }
     /**@type {HTMLElement} */
+    const dom = manager.document.querySelector('#csss--root');
     // @ts-ignore
-    const dom = managerTemplate.cloneNode(true);
-    const list = dom.querySelector('#csss--list');
-    settings.snippetList.forEach(snippet=>{
-        const li = makeSnippetDom(snippet);
-        list.append(li);
-    });
     manager.sortableStop = ()=>{
+        // @ts-ignore
         settings.snippetList.sort((a,b)=>Array.from(list.children).findIndex(it=>it.snippet == a) - Array.from(list.children).findIndex(it=>it.snippet == b));
         saveSettingsDebounced();
     };
+    // @ts-ignore
     manager.sortableDelay = getSortableDelay();
     const scripts = [
         '/lib/jquery-3.5.1.min.js',
@@ -345,13 +357,21 @@ const showCssManager = async()=>{
     `;
     dom.append(sortableScript);
 
-    /**@type {HTMLElement} */
-    const coll = dom.querySelector('#csss--collapse');
-    coll.addEventListener('click', ()=>{
-        const c = dom.classList.toggle('csss--isCollapsed');
-        coll.classList[c ? 'add' : 'remove']('fa-angles-down');
-        coll.classList[c ? 'remove' : 'add']('fa-angles-up');
-        coll.title = c ? 'Uncollapse snippets' : 'Collapse snippets';
+    collapser = dom.querySelector('#csss--collapse');
+    collapser.addEventListener('click', ()=>{
+        const uncol = settings.snippetList.filter(it=>!it.isCollapsed);
+        if (uncol.length > 0) {
+            uncol.forEach(snippet=>snippetDomMapper.find(sdm=>sdm.snippet==snippet).li.querySelector('.csss--collapse').click());
+        } else {
+            settings.snippetList.forEach(snippet=>snippetDomMapper.find(sdm=>sdm.snippet==snippet).li.querySelector('.csss--collapse').click());
+        }
+    });
+    // @ts-ignore
+    snippetTemplate = dom.querySelector('#csss--snippet').content.querySelector('.csss--snippet');
+    const list = dom.querySelector('#csss--list');
+    settings.snippetList.forEach(snippet=>{
+        const li = makeSnippetDom(snippet);
+        list.append(li);
     });
     /**@type {HTMLInputElement} */
     const imp = dom.querySelector('#csss--import-file');

@@ -101,6 +101,30 @@ html > body.csss--body {
 			&:has(.csss--isDisabled:checked) {
 				opacity: 0.5;
 			}
+			&.csss--isCollapsed {
+				> .csss--nameWrap {
+					flex: 1 1 auto;
+					display: flex;
+					flex-direction: row;
+					> .csss--activeWrap {
+						> .flex-container {
+							flex-direction: row;
+							flex-wrap: nowrap;
+							> .csss--text > .csss--full {
+								display: none;
+							}
+						}
+					}
+				}
+				> .csss--contentWrap {
+					display: none;
+				}
+				> .csss--actionsWrap {
+					display: flex;
+					flex-direction: row;
+					gap: 0.5em;
+				}
+			}
 
 			> .csss--dragWrap {
 				flex: 0 0 auto;
@@ -114,7 +138,7 @@ html > body.csss--body {
 				> .csss--activeWrap {
 					display: flex;
 					flex-direction: row;
-					gap: 0.5em;
+					gap: 1em;
 					justify-content: space-between;
 					padding: 0.5em;
 				}
@@ -136,7 +160,7 @@ html > body.csss--body {
 	}
 
 	> .csss--blocker {
-		position: fixed;
+		position: absolute;
 		inset: 0;
 		z-index: 10;
 		backdrop-filter: blur(4px);
