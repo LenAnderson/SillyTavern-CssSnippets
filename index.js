@@ -5,6 +5,27 @@ import { registerSlashCommand } from '../../../slash-commands.js';
 import { delay, getSortableDelay } from '../../../utils.js';
 
 
+class Snippet {
+    static from(props) {
+        if (props.isTheme !== undefined) delete props.isTheme;
+        return Object.assign(new this(), props);
+    }
+    /**@type {String}*/ name = '';
+    /**@type {Boolean}*/ isDisabled = false;
+    /**@type {Boolean}*/ isGlobal = true;
+    /**@type {String}*/ content = '';
+    /**@type {Boolean}*/ isCollapsedd = false;
+    get isTheme() {
+        return settings.themeSnippets[power_user.theme].includes(this.name);
+    }
+
+    constructor(text = '', name = '') {
+        this.text = text;
+        this.name = name;
+    }
+}
+
+
 const initSettings = ()=>{
     settings = Object.assign({
         snippetList: [],
@@ -12,6 +33,7 @@ const initSettings = ()=>{
         filters: {},
     }, extension_settings.cssSnippets ?? {});
     extension_settings.cssSnippets = settings;
+    settings.snippetList = settings.snippetList.map(it=>Snippet.from(it));
 };
 const init = async()=>{
     initSettings();
@@ -107,6 +129,8 @@ let isExporting = false;
 let selectedList = [];
 /**@type {HTMLElement} */
 let selectedCount;
+/**@type {HTMLElement} */
+let expAll;
 /**@type {Object[]} */
 let snippetDomMapper = [];
 /**@type {HTMLElement} */
@@ -144,6 +168,20 @@ const save = ()=>{
     settings.themeSnippets[power_user.theme] = settings.snippetList.filter(it=>it.isTheme).map(it=>it.name);
     saveSettingsDebounced();
     updateCss();
+};
+
+const updateExportSelection = ()=>{
+    selectedCount.textContent = `${selectedList.length}`;
+    const filtered = snippetDomMapper.filter(it=>!it.li.classList.contains('csss--isFiltered')).map(it=>it.snippet);
+    const isAll = selectedList.length == settings.snippetList.length;
+    const isFiltered = selectedList.length == filtered.length && !selectedList.find(it=>!filtered.includes(it));
+    if (isFiltered && !isAll) {
+        expAll.title = 'Select all snippets, including hidden / filtered';
+    } else if (isAll) {
+        expAll.title = 'Deselect all snippets';
+    } else {
+        expAll.title = 'Select all visible / unfiltered snippets';
+    }
 };
 
 const expand = (snippet, ta) => {
@@ -193,7 +231,7 @@ const makeSnippetDom = (snippet)=>{
                     selectedList.splice(idx, 1);
                 }
             }
-            selectedCount.textContent = `${selectedList.length}`;
+            updateExportSelection();
         });
         const collapseToggle = li.querySelector('.csss--collapse');
         collapseToggle.addEventListener('click', ()=>{
@@ -246,7 +284,7 @@ const makeSnippetDom = (snippet)=>{
         const isTheme = li.querySelector('.csss--isTheme'); {
             isTheme.checked = settings.themeSnippets[power_user.theme]?.find(it=>it == snippet.name);
             isTheme.addEventListener('click', ()=>{
-                snippet.isTheme = isTheme.checked;
+                // snippet.isTheme = isTheme.checked;
                 save();
             });
         }
@@ -362,9 +400,9 @@ const showCssManager = async()=>{
     collapser.addEventListener('click', ()=>{
         const uncol = settings.snippetList.filter(it=>!it.isCollapsed);
         if (uncol.length > 0) {
-            uncol.forEach(snippet=>snippetDomMapper.find(sdm=>sdm.snippet==snippet).li.querySelector('.csss--collapse').click());
+            uncol.forEach(snippet=>snippetDomMapper.find(sdm=>sdm.snippet == snippet).li.querySelector('.csss--collapse').click());
         } else {
-            settings.snippetList.forEach(snippet=>snippetDomMapper.find(sdm=>sdm.snippet==snippet).li.querySelector('.csss--collapse').click());
+            settings.snippetList.forEach(snippet=>snippetDomMapper.find(sdm=>sdm.snippet == snippet).li.querySelector('.csss--collapse').click());
         }
     });
     // @ts-ignore
@@ -389,14 +427,7 @@ const showCssManager = async()=>{
             snippets.push(...JSON.parse(text));
         } catch {
             // if not JSON, treat as plain CSS
-            snippets.push({
-                name: '',
-                isDisabled: false,
-                isGlobal: true,
-                isTheme: false,
-                content: text,
-                isCollapsed: false,
-            });
+            snippets.push(new Snippet(text));
         }
 
         let jumped = false;
@@ -417,6 +448,7 @@ const showCssManager = async()=>{
         importSnippets(evt.clipboardData.getData('text'));
     });
     let exp = dom.querySelector('#csss--export');
+    expAll = dom.querySelector('#csss--export-selectAll');
     let expMsg = dom.querySelector('#csss--export-message');
     let expCopy = dom.querySelector('#csss--export-copy');
     let expDownload = dom.querySelector('#csss--export-download');
@@ -426,17 +458,54 @@ const showCssManager = async()=>{
         dom.classList.remove('csss--isExporting');
         Array.from(dom.querySelectorAll('.csss--snippet.csss--selected')).forEach(it=>it.classList.remove('csss--selected'));
         while (selectedList.length > 0) selectedList.pop();
-        [exp, expMsg, expCopy, expDownload].forEach(it=>it.classList.remove('csss--active'));
-        selectedCount.textContent = `${selectedList.length}`;
+        [exp, expAll, expMsg, expCopy, expDownload].forEach(it=>it.classList.remove('csss--active'));
+        updateExportSelection();
     };
     exp.addEventListener('click', ()=>{
         if (isExporting) {
             return stopExporting();
         }
-        selectedCount.textContent = `${selectedList.length}`;
+        updateExportSelection();
         isExporting = true;
         dom.classList.add('csss--isExporting');
-        [exp, expMsg, expCopy, expDownload].forEach(it=>it.classList.add('csss--active'));
+        [exp, expAll, expMsg, expCopy, expDownload].forEach(it=>it.classList.add('csss--active'));
+    });
+    expAll.addEventListener('click', ()=>{
+        const filtered = snippetDomMapper.filter(it=>!it.li.classList.contains('csss--isFiltered')).map(it=>it.snippet);
+        const isAll = selectedList.length == settings.snippetList.length;
+        const isFiltered = selectedList.length == filtered.length && !selectedList.find(it=>!filtered.includes(it));
+        if (isFiltered && !isAll) {
+            // select all, including hidden snippets
+            for (const snippet of settings.snippetList) {
+                if (selectedList.includes(snippet)) continue;
+                selectedList.push(snippet);
+                snippetDomMapper.find(it=>it.snippet == snippet).li.classList.add('csss--selected');
+            }
+        } else if (isAll) {
+            // unselect all snippets
+            while (selectedList.length > 0) {
+                const snippet = selectedList.pop();
+                snippetDomMapper.find(it=>it.snippet == snippet).li.classList.remove('csss--selected');
+            }
+        } else {
+            // select all visible / unfiltered snippets
+            // first deselect all filtered snippets
+            const deselect = [];
+            for (const snippet of selectedList) {
+                if (!filtered.includes(snippet)) deselect.push(snippet);
+            }
+            for (const snippet of deselect) {
+                selectedList.splice(selectedList.indexOf(snippet), 1);
+                snippetDomMapper.find(it=>it.snippet == snippet).li.classList.remove('csss--selected');
+            }
+            // then select missing snippets
+            for (const snippet of filtered) {
+                if (selectedList.includes(snippet)) continue;
+                selectedList.push(snippet);
+                snippetDomMapper.find(it=>it.snippet == snippet).li.classList.add('csss--selected');
+            }
+        }
+        updateExportSelection();
     });
     expCopy.addEventListener('click', ()=>{
         if (!isExporting) return;
@@ -478,7 +547,7 @@ const showCssManager = async()=>{
         const query = search.value;
         const re = new RegExp(query, 'i');
         for (const snippet of settings.snippetList) {
-            const li = snippetDomMapper.find(it=>it.snippet==snippet).li;
+            const li = snippetDomMapper.find(it=>it.snippet == snippet).li;
             if (re.test(snippet.name)) {
                 li.classList.remove('csss--isHidden');
             } else {
@@ -488,7 +557,7 @@ const showCssManager = async()=>{
     });
     const applyFilter = ()=>{
         for (const snippet of settings.snippetList) {
-            const li = snippetDomMapper.find(it=>it.snippet==snippet).li;
+            const li = snippetDomMapper.find(it=>it.snippet == snippet).li;
             if (
                 (settings.filters.disabled && snippet.isDisabled)
                 || (settings.filters.theme && !settings.themeSnippets[power_user.theme].includes(snippet.name) && Object.keys(settings.themeSnippets).map(key=>settings.themeSnippets[key]).filter(it=>it.includes(snippet.name)).length > 0)
@@ -500,6 +569,7 @@ const showCssManager = async()=>{
                 li.classList.remove('csss--isFiltered');
             }
         }
+        updateExportSelection();
     };
     applyFilter();
     const filterBtn = dom.querySelector('#csss--filter');
@@ -544,13 +614,7 @@ const showCssManager = async()=>{
     });
 
     dom.querySelector('.csss--add').addEventListener('click', ()=>{
-        const snippet = {
-            name: '',
-            isDisabled: false,
-            isGlobal: true,
-            isTheme: false,
-            content: '',
-        };
+        const snippet = new Snippet();
         settings.snippetList.push(snippet);
         const li = makeSnippetDom(snippet);
         list.append(li);

@@ -55,7 +55,7 @@ html > body.csss--body #csss--head > .csss--actions {
   display: flex;
   flex-direction: row;
   gap: 0.25em;
-  align-items: baseline;
+  align-items: center;
 }
 html > body.csss--body #csss--head > .csss--actions > #csss--collapse,
 html > body.csss--body #csss--head > .csss--actions > #csss--import {
@@ -73,7 +73,9 @@ html > body.csss--body #csss--head > .csss--actions > #csss--import-file {
 }
 html > body.csss--body #csss--head > .csss--actions > #csss--export-message {
   flex: 1 1 auto;
+  font-size: smaller;
 }
+html > body.csss--body #csss--head > .csss--actions > #csss--export-selectAll,
 html > body.csss--body #csss--head > .csss--actions > #csss--export-message,
 html > body.csss--body #csss--head > .csss--actions > #csss--export-copy,
 html > body.csss--body #csss--head > .csss--actions > #csss--export-download {
@@ -85,6 +87,7 @@ html > body.csss--body #csss--head > .csss--actions > #csss--export-download {
   pointer-events: none;
   transition: 200ms;
 }
+html > body.csss--body #csss--head > .csss--actions > #csss--export-selectAll.csss--active,
 html > body.csss--body #csss--head > .csss--actions > #csss--export-message.csss--active,
 html > body.csss--body #csss--head > .csss--actions > #csss--export-copy.csss--active,
 html > body.csss--body #csss--head > .csss--actions > #csss--export-download.csss--active {
@@ -93,6 +96,7 @@ html > body.csss--body #csss--head > .csss--actions > #csss--export-download.css
   height: auto;
   pointer-events: all;
 }
+html > body.csss--body #csss--head > .csss--actions > #csss--export-selectAll.csss--active#csss--export-message,
 html > body.csss--body #csss--head > .csss--actions > #csss--export-message.csss--active#csss--export-message,
 html > body.csss--body #csss--head > .csss--actions > #csss--export-copy.csss--active#csss--export-message,
 html > body.csss--body #csss--head > .csss--actions > #csss--export-download.csss--active#csss--export-message {
