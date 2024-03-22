@@ -54,6 +54,14 @@ const init = async()=>{
     themeLoop();
 
     registerSlashCommand(
+        'csss',
+        (args, value)=>showCssManager(),
+        [],
+        '<span class="monospace"></span> – Show the CSS Snippet Manager.',
+        true,
+        true,
+    );
+    registerSlashCommand(
         'csss-on',
         (args, value)=>{
             const snippet = settings.snippetList.find(it=>it.name.toLowerCase() == value.toLowerCase());
