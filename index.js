@@ -173,14 +173,13 @@ const updateCss = ()=>{
     }
 };
 const save = ()=>{
-    settings.themeSnippets[power_user.theme] = settings.snippetList.filter(it=>it.isTheme).map(it=>it.name);
     saveSettingsDebounced();
     updateCss();
 };
 
 const updateExportSelection = ()=>{
     selectedCount.textContent = `${selectedList.length}`;
-    const filtered = snippetDomMapper.filter(it=>!it.li.classList.contains('csss--isFiltered')).map(it=>it.snippet);
+    const filtered = snippetDomMapper.filter(it=>!it.li.classList.contains('csss--isFiltered') && !it.li.classList.contains('csss--isHidden')).map(it=>it.snippet);
     const isAll = selectedList.length == settings.snippetList.length;
     const isFiltered = selectedList.length == filtered.length && !selectedList.find(it=>!filtered.includes(it));
     if (isFiltered && !isAll) {
@@ -292,7 +291,11 @@ const makeSnippetDom = (snippet)=>{
         const isTheme = li.querySelector('.csss--isTheme'); {
             isTheme.checked = settings.themeSnippets[power_user.theme]?.find(it=>it == snippet.name);
             isTheme.addEventListener('click', ()=>{
-                // snippet.isTheme = isTheme.checked;
+                if (snippet.isTheme) {
+                    settings.themeSnippets[power_user.theme].splice(settings.themeSnippets[power_user.theme].indexOf(snippet.name), 1);
+                } else {
+                    settings.themeSnippets[power_user.theme].push(snippet.name);
+                }
                 save();
             });
         }
@@ -479,7 +482,7 @@ const showCssManager = async()=>{
         [exp, expAll, expMsg, expCopy, expDownload].forEach(it=>it.classList.add('csss--active'));
     });
     expAll.addEventListener('click', ()=>{
-        const filtered = snippetDomMapper.filter(it=>!it.li.classList.contains('csss--isFiltered')).map(it=>it.snippet);
+        const filtered = snippetDomMapper.filter(it=>!it.li.classList.contains('csss--isFiltered') && !it.li.classList.contains('csss--isHidden')).map(it=>it.snippet);
         const isAll = selectedList.length == settings.snippetList.length;
         const isFiltered = selectedList.length == filtered.length && !selectedList.find(it=>!filtered.includes(it));
         if (isFiltered && !isAll) {
