@@ -18,22 +18,41 @@ class Snippet {
     get isTheme() {
         return settings.themeSnippets[power_user.theme].includes(this.name);
     }
+    get themeList() {
+        return Object.keys(settings.themeSnippets).filter(key=>settings.themeSnippets[key].includes(this.name));
+    }
+    get theme() {
+        return this.themeList.join(';');
+    }
+    get css() {
+        return this.content;
+    }
+    get title() {
+        return this.name;
+    }
 
-    constructor(text = '', name = '') {
-        this.text = text;
+    constructor(content = '', name = '') {
+        this.content = content;
         this.name = name;
     }
 }
 
+class Settings {
+    static from(props) {
+        props.snippetList = props.snippetList.map(it=>Snippet.from(it));
+        return Object.assign(new Settings, props);
+    }
+    /**@type {Snippet[]}*/ snippetList = [];
+    // @ts-ignore
+    /**@type {Map<string,string>}*/ themeSnippets = {};
+    // @ts-ignore
+    /**@type {Map<string,Boolean>}*/ filters = {};
+}
+
 
 const initSettings = ()=>{
-    settings = Object.assign({
-        snippetList: [],
-        themeSnippets: {},
-        filters: {},
-    }, extension_settings.cssSnippets ?? {});
+    settings = Settings.from(extension_settings.cssSnippets);
     extension_settings.cssSnippets = settings;
-    settings.snippetList = settings.snippetList.map(it=>Snippet.from(it));
 };
 const init = async()=>{
     initSettings();
@@ -121,7 +140,7 @@ eventSource.on(event_types.APP_READY, ()=>init());
 
 
 
-/**@type {Object} */
+/**@type {Settings} */
 let settings;
 /**@type {Window} */
 let manager;
@@ -554,12 +573,36 @@ const showCssManager = async()=>{
 
     /**@type {HTMLInputElement} */
     const search = dom.querySelector('#csss--searchQuery');
+    search.title = [
+        'Search snippets',
+        '—'.repeat(30),
+        'Default: search in snippet name',
+        'Use a prefix to search in all or in specific fields.',
+        '—'.repeat(30),
+        'all:  search in name, content, theme',
+        'content:  search in snippet content / CSS',
+        'css:  alias for content:',
+        'theme:  search in assigned themes',
+        'name:  search in name (redundant, this is the default field to search in)',
+        'title:  alias for name:',
+    ].join('\n');
     search.addEventListener('input', ()=>{
-        const query = search.value;
+        let fields = ['name', 'title', 'content', 'theme', 'css'];
+        let query = search.value;
+        if (search.value.startsWith('all:')) {
+            query = search.value.slice(4).trim();
+        } else if (fields.includes(search.value.split(':')[0])) {
+            query = search.value.split(':').slice(1).join(':');
+            fields = [search.value.split(':')[0]];
+        }
         const re = new RegExp(query, 'i');
         for (const snippet of settings.snippetList) {
             const li = snippetDomMapper.find(it=>it.snippet == snippet).li;
-            if (re.test(snippet.name)) {
+            let found = false;
+            for (const field of fields) {
+                found = found || re.test(snippet[field]);
+            }
+            if (found) {
                 li.classList.remove('csss--isHidden');
             } else {
                 li.classList.add('csss--isHidden');
