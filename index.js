@@ -16,10 +16,10 @@ class Snippet {
     /**@type {String}*/ content = '';
     /**@type {Boolean}*/ isCollapsedd = false;
     get isTheme() {
-        return settings.themeSnippets[power_user.theme].includes(this.name);
+        return settings.themeSnippets[power_user.theme]?.includes(this.name);
     }
     get themeList() {
-        return Object.keys(settings.themeSnippets).filter(key=>settings.themeSnippets[key].includes(this.name));
+        return Object.keys(settings.themeSnippets).filter(key=>settings.themeSnippets[key]?.includes(this.name));
     }
     get theme() {
         return this.themeList.join(';');
@@ -614,9 +614,9 @@ const showCssManager = async()=>{
             const li = snippetDomMapper.find(it=>it.snippet == snippet).li;
             if (
                 (settings.filters.disabled && snippet.isDisabled)
-                || (settings.filters.theme && !settings.themeSnippets[power_user.theme].includes(snippet.name) && Object.keys(settings.themeSnippets).map(key=>settings.themeSnippets[key]).filter(it=>it.includes(snippet.name)).length > 0)
+                || (settings.filters.theme && !settings.themeSnippets[power_user.theme]?.includes(snippet.name) && Object.keys(settings.themeSnippets).map(key=>settings.themeSnippets[key]).filter(it=>it.includes(snippet.name)).length > 0)
                 || (settings.filters.global && snippet.isGlobal)
-                || (settings.filters.thisTheme && settings.themeSnippets[power_user.theme].includes(snippet.name))
+                || (settings.filters.thisTheme && settings.themeSnippets[power_user.theme]?.includes(snippet.name))
             ) {
                 li.classList.add('csss--isFiltered');
             } else {
