@@ -51,7 +51,7 @@ class Settings {
 
 
 const initSettings = ()=>{
-    settings = Settings.from(extension_settings.cssSnippets);
+    settings = Settings.from(extension_settings.cssSnippets ?? {});
     extension_settings.cssSnippets = settings;
 };
 const init = async()=>{
